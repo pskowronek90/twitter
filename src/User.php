@@ -1,7 +1,5 @@
 <?php
 
-include('connection.php');
-
 class User
 {
 
@@ -65,24 +63,30 @@ class User
     public function saveToDB(PDO $conn)
     {
         if ($this->id == -1) {
-            $stmt = $conn->prepare('INSERT INTO Users (email, username, hash_pass) VALUES (:email, :username, :hash_pass)');
+            $sql = 'INSERT INTO Users(username, email, hash_pass) VALUES(:username, :email, :pass)';
+            $stmt = $conn->prepare($sql);
             $result = $stmt->execute([
-                'email' => $this->email,
                 'username' => $this->username,
-                'hash_pass' => $this->hashPass
+                'email' => $this->email,
+                'pass' => $this->hashPass
             ]);
             if ($result !== false) {
                 $this->id = $conn->lastInsertId();
                 return true;
             }
-            else {
-                $stmt = $conn->prepare('UPDATE Users SET email=:email, username=:username, hash_pass=:hash_pass WHERE  id=:id ');
-                $result = $stmt->execute(['email' => $this->email, 'username' => $this->username, 'hash_pass' => $this->hashPass, 'id' => $this->id]);
-                if ($result === true) {
-                    return true;
-                }
+        } else {
+            $stmt = $conn->prepare('UPDATE Users SET email=:email, username=:username, hash_pass=:hash_pass WHERE  id=:id ');
+            $result = $stmt->execute([
+                'email' => $this->email,
+                'username' => $this->username,
+                'hash_pass' => $this->hashPass,
+                'id' => $this->id
+            ]);
+            if ($result === true) {
+                return true;
             }
         }
+        return false;
     }
 
     // Wczytanie obiektu do bazy
@@ -123,6 +127,34 @@ class User
         return $ret;
     }
 
+    // Usuwanie usera
+
+    public function delete(PDO $conn)
+    {
+        if ($this->id != -1) {
+            $stmt = $conn->prepare('DELETE FROM Users WHERE id=:id');
+            $result = $stmt->execute(['id' => $this->id]);
+            if ($result === true) {
+                $this->id = -1;
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    // Logowanie
+
+    static public function login(PDO $conn, $email, $passFromUser)
+    {
+        $user = User::loadUserByEmail($conn, $email);
+        if ($user !== null && password_verify($passFromUser, $user->getPassword()) == $passFromUser) {
+            return $user;
+        } else {
+            return false;
+        }
+    }
+
     // Funkcja pomocnicza: wyświetl dane
 
     public function info()
@@ -136,41 +168,46 @@ class User
 
 # Testy
 
-//// Zapis usera - 1
-//
-//$user = new User();
-//$user->setUsername('TestUser');
-//$user->setEmail('testmail@o2.pl');
-//$user->setPassword('Supertajnehaslo123');
-//$user->info()."\n";
-////$user->saveToDB($conn); // jest w bazie - OK!
-//
-//// Zapis usera -2
-//
-$user2 = new User();
-$user2->setUsername('NewUser');
-$user2->setEmail('newmail@interia.pl');
-$user2->setPassword('Supertajnehaslo123');
+////// Zapis usera - 1
+////
+////$user = new User();
+////$user->setUsername('TestUser');
+////$user->setEmail('testmail@o2.pl');
+////$user->setPassword('Supertajnehaslo123');
+////$user->info()."\n";
+//////$user->saveToDB($conn); // jest w bazie - OK!
+////
+////// Zapis usera -2
+////
+//$user2 = new User();
+//$user2->setUsername('NewUser222');
+//$user2->setEmail('nsfsf22222sf@interia.pl');
+//$user2->setPassword('Supertajnehaslo123');
 //$user2->info()."\n";
-////$user2->saveToDB($conn); // jest w bazie - OK!
+//$user2->saveToDB($conn); // jest w bazie - OK!
+////
+////// Wczytanie usera z bazy
 //
-//// Wczytanie usera z bazy
-
-//print_r(User::loadUserById($conn, 1));
+////print_r(User::loadUserById($conn, 1));
+////
+//////// Wczytanie wszystkich userów
+////
+////print_r(User::loadAllUsers($conn));
 //
-////// Wczytanie wszystkich userów
 //
-//print_r(User::loadAllUsers($conn));
+//// Update usera - str 41 w pdfie - poprawić później
+//
+//User::loadUserById($conn,2);
+//$user2->setEmail("taki@wp.pl");
+//$user2->setUsername('nowyUser333');
+//$user2->setPassword('Nowehaslo');
+//
+//User::loadUserById($conn,2)
 
 
-// Update usera
 
-print_r(User::loadUserById($conn,2));
-$user2->setEmail("taki@wp.pl");
-$user2->setUsername('nowyUser333');
-$user2->setPassword('Nowehaslo');
-$user2->saveToDB($conn);
-print_r(User::loadUserById($conn,2));
+
+
 
 
 

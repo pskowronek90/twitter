@@ -1,5 +1,7 @@
 <?php
 
+include ('connection.php');
+
 class User
 {
 
@@ -73,4 +75,24 @@ class User
         }
     }
 
+    // Funkcja pomocnicza: wyświetl dane
+
+    public function info()
+    {
+        echo $this->getId() . "\n";
+        echo $this->getUsername() . "\n";
+        echo $this->getEmail() . "\n";
+        echo $this->getHashPass() . "\n";
+    }
 }
+
+
+// Testy
+
+$user = new User();
+$user->setUsername('TestUser');
+$user->setEmail('testmail@o2.pl');
+$user->setPassword('Supertajnehaslo123');
+$user->info();
+$user->saveToDB($conn); // jest w bazie - OK!
+

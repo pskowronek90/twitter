@@ -1,6 +1,6 @@
 <?php
 
-include ('connection.php');
+include('connection.php');
 
 class User
 {
@@ -24,9 +24,9 @@ class User
 
     // Getery i setery
 
-    public function setPassword($newPass) {
-        $newHashedPass = password_hash(
-            $newPass, PASSWORD_BCRYPT);
+    public function setPassword($newPass)
+    {
+        $newHashedPass = password_hash($newPass, PASSWORD_BCRYPT);
         $this->hashPass = $newHashedPass;
     }
 
@@ -62,11 +62,15 @@ class User
 
     // Zapisanie nowego obiektu do bazy
 
-    public function saveToDB (PDO $conn)
+    public function saveToDB(PDO $conn)
     {
         if ($this->id == -1) {
             $stmt = $conn->prepare('INSERT INTO Users (email, username, hash_pass) VALUES (:email, :username, :hash_pass)');
-            $result = $stmt->execute(['email' => $this->email, 'username' => $this->username, 'hash_pass' => $this->hashPass]);
+            $result = $stmt->execute([
+                'email' => $this->email,
+                'username' => $this->username,
+                'hash_pass' => $this->hashPass
+            ]);
 
             if ($result !== false) {
                 $this->id = $conn->lastInsertId();
@@ -93,6 +97,26 @@ class User
         return null;
     }
 
+    // Wczytywanie wielu obiektów
+
+    static public function loadAllUsers(PDO $conn)
+    {
+        $ret = [];
+        $sql = "SELECT * FROM Users";
+        $result = $conn->query($sql);
+        if ($result !== false && $result->rowCount() != 0) {
+            foreach ($result as $row) {
+                $loadedUser = new User();
+                $loadedUser->id = $row['id'];
+                $loadedUser->username = $row['username'];
+                $loadedUser->hashPass = $row['hash_pass'];
+                $loadedUser->email = $row['email'];
+                $ret[] = $loadedUser;
+            }
+        }
+        return $ret;
+    }
+
     // Funkcja pomocnicza: wyświetl dane
 
     public function info()
@@ -103,7 +127,6 @@ class User
         echo $this->getHashPass() . "\n";
     }
 }
-
 
 // Testy
 
@@ -121,6 +144,9 @@ class User
 //$user2->info();
 //$user2->saveToDB($conn); // jest w bazie - OK!
 
-$test = User::loadUserById($conn,1);
-echo var_dump($test);
+$test1 = User::loadUserById($conn, 1);
+print_r($test1);
+
+$test2 = User::loadAllUsers($conn);
+print_r($test2);
 

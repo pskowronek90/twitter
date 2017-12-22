@@ -75,6 +75,24 @@ class User
         }
     }
 
+    // Wczytanie obiektu do bazy
+
+    static public function loadUserById(PDO $conn, $id)
+    {
+        $stmt = $conn->prepare('SELECT * FROM Users WHERE id=:id');
+        $result = $stmt->execute(['id' => $id]);
+        if ($result === true && $stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $loadedUser = new User();
+            $loadedUser->id = $row['id'];
+            $loadedUser->username = $row['username'];
+            $loadedUser->hashPass = $row['hash_pass'];
+            $loadedUser->email = $row['email'];
+            return $loadedUser;
+        }
+        return null;
+    }
+
     // Funkcja pomocnicza: wyświetl dane
 
     public function info()
@@ -89,10 +107,20 @@ class User
 
 // Testy
 
-$user = new User();
-$user->setUsername('TestUser');
-$user->setEmail('testmail@o2.pl');
-$user->setPassword('Supertajnehaslo123');
-$user->info();
-$user->saveToDB($conn); // jest w bazie - OK!
+//$user = new User();
+//$user->setUsername('TestUser');
+//$user->setEmail('testmail@o2.pl');
+//$user->setPassword('Supertajnehaslo123');
+//$user->info();
+//$user->saveToDB($conn); // jest w bazie - OK!
+
+//$user2 = new User();
+//$user2->setUsername('NewUser');
+//$user2->setEmail('newmail@interia.pl');
+//$user2->setPassword('Supertajnehaslo123');
+//$user2->info();
+//$user2->saveToDB($conn); // jest w bazie - OK!
+
+$test = User::loadUserById($conn,1);
+echo var_dump($test);
 

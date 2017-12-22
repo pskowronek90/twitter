@@ -71,10 +71,16 @@ class User
                 'username' => $this->username,
                 'hash_pass' => $this->hashPass
             ]);
-
             if ($result !== false) {
                 $this->id = $conn->lastInsertId();
                 return true;
+            }
+            else {
+                $stmt = $conn->prepare('UPDATE Users SET email=:email, username=:username, hash_pass=:hash_pass WHERE  id=:id ');
+                $result = $stmt->execute(['email' => $this->email, 'username' => $this->username, 'hash_pass' => $this->hashPass, 'id' => $this->id]);
+                if ($result === true) {
+                    return true;
+                }
             }
         }
     }
@@ -128,25 +134,47 @@ class User
     }
 }
 
-// Testy
+# Testy
 
+//// Zapis usera - 1
+//
 //$user = new User();
 //$user->setUsername('TestUser');
 //$user->setEmail('testmail@o2.pl');
 //$user->setPassword('Supertajnehaslo123');
-//$user->info();
-//$user->saveToDB($conn); // jest w bazie - OK!
+//$user->info()."\n";
+////$user->saveToDB($conn); // jest w bazie - OK!
+//
+//// Zapis usera -2
+//
+$user2 = new User();
+$user2->setUsername('NewUser');
+$user2->setEmail('newmail@interia.pl');
+$user2->setPassword('Supertajnehaslo123');
+//$user2->info()."\n";
+////$user2->saveToDB($conn); // jest w bazie - OK!
+//
+//// Wczytanie usera z bazy
 
-//$user2 = new User();
-//$user2->setUsername('NewUser');
-//$user2->setEmail('newmail@interia.pl');
-//$user2->setPassword('Supertajnehaslo123');
-//$user2->info();
-//$user2->saveToDB($conn); // jest w bazie - OK!
+//print_r(User::loadUserById($conn, 1));
+//
+////// Wczytanie wszystkich userów
+//
+//print_r(User::loadAllUsers($conn));
 
-$test1 = User::loadUserById($conn, 1);
-print_r($test1);
 
-$test2 = User::loadAllUsers($conn);
-print_r($test2);
+// Update usera
+
+print_r(User::loadUserById($conn,2));
+$user2->setEmail("taki@wp.pl");
+$user2->setUsername('nowyUser333');
+$user2->setPassword('Nowehaslo');
+$user2->saveToDB($conn);
+print_r(User::loadUserById($conn,2));
+
+
+
+
+
+
 

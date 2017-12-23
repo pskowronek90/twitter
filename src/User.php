@@ -1,17 +1,15 @@
 <?php
 
+require_once ('connection.php');
+
 class User
 {
-
     // Własności
-
     private $id;
     private $username;
     private $hashPass;
     private $email;
-
     // Konstruktor
-
     public function __construct()
     {
         $this->id = -1;
@@ -19,47 +17,37 @@ class User
         $this->email = "";
         $this->hashPass = "";
     }
-
     // Getery i setery
-
     public function setPassword($newPass)
     {
         $newHashedPass = password_hash($newPass, PASSWORD_BCRYPT);
         $this->hashPass = $newHashedPass;
     }
-
     public function getUsername()
     {
         return $this->username;
     }
-
     public function setUsername($username)
     {
         $this->username = $username;
     }
-
     public function getHashPass()
     {
         return $this->hashPass;
     }
-
     public function getEmail()
     {
         return $this->email;
     }
-
     public function setEmail($email)
     {
         $this->email = $email;
     }
-
     public function getId()
     {
         return $this->id;
     }
-
     // Zapisanie nowego obiektu do bazy
-
     public function saveToDB(PDO $conn)
     {
         if ($this->id == -1) {
@@ -88,9 +76,7 @@ class User
         }
         return false;
     }
-
     // Wczytanie obiektu do bazy
-
     static public function loadUserById(PDO $conn, $id)
     {
         $stmt = $conn->prepare('SELECT * FROM Users WHERE id=:id');
@@ -106,9 +92,7 @@ class User
         }
         return null;
     }
-
     // Wczytywanie wielu obiektów
-
     static public function loadAllUsers(PDO $conn)
     {
         $ret = [];
@@ -126,9 +110,7 @@ class User
         }
         return $ret;
     }
-
     // Usuwanie usera
-
     public function delete(PDO $conn)
     {
         if ($this->id != -1) {
@@ -142,9 +124,7 @@ class User
         }
         return true;
     }
-
     // Logowanie
-
     static public function login(PDO $conn, $email, $passFromUser)
     {
         $user = User::loadUserByEmail($conn, $email);
@@ -154,9 +134,7 @@ class User
             return false;
         }
     }
-
     // Funkcja pomocnicza: wyświetl dane
-
     public function info()
     {
         echo $this->getId() . "\n";
@@ -165,53 +143,7 @@ class User
         echo $this->getHashPass() . "\n";
     }
 }
-
 # Testy
-
-////// Zapis usera - 1
-////
-////$user = new User();
-////$user->setUsername('TestUser');
-////$user->setEmail('testmail@o2.pl');
-////$user->setPassword('Supertajnehaslo123');
-////$user->info()."\n";
-//////$user->saveToDB($conn); // jest w bazie - OK!
-////
-////// Zapis usera -2
-////
-//$user2 = new User();
-//$user2->setUsername('NewUser222');
-//$user2->setEmail('nsfsf22222sf@interia.pl');
-//$user2->setPassword('Supertajnehaslo123');
-//$user2->info()."\n";
-//$user2->saveToDB($conn); // jest w bazie - OK!
-////
-////// Wczytanie usera z bazy
-//
-////print_r(User::loadUserById($conn, 1));
-////
-//////// Wczytanie wszystkich userów
-////
-////print_r(User::loadAllUsers($conn));
-//
-//
-//// Update usera - str 41 w pdfie - poprawić później
-//
-//User::loadUserById($conn,2);
-//$user2->setEmail("taki@wp.pl");
-//$user2->setUsername('nowyUser333');
-//$user2->setPassword('Nowehaslo');
-//
-//User::loadUserById($conn,2)
-
-
-
-
-
-
-
-
-
 
 
 

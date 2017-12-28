@@ -47,6 +47,10 @@ class Tweet
             echo "Twój wpis jest za długi! (max 160 znaków)";
         }
 
+        if (mb_strlen($text) == 0) {
+            echo "Wpis nie może być pusty";
+        }
+
     }
 
     public function getCreationDate()
@@ -129,12 +133,4 @@ class Tweet
     }
 
 }
-
-# Test
-
-$test = new Tweet();
-$test->setUserId(2);
-$test->setText('sample');
-$test->setCreationDate("NOW()");
-$test->saveToDB($conn);
 

@@ -1,5 +1,9 @@
 <?php
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // send comment to db
+}
+
 ?>
 
 <!DOCTYPE html>

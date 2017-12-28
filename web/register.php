@@ -1,7 +1,9 @@
 <?php
-require_once('../src/connection.php');
-require_once('../src/User.php');
 session_start();
+
+require_once'../src/connection.php';
+require_once'../src/User.php';
+
 if ('POST' === $_SERVER['REQUEST_METHOD']) {
     if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['password'])) {
         $username = $_POST['username'];

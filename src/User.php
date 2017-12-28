@@ -1,80 +1,65 @@
 <?php
-
 class User
 {
-    // Własności
     private $id;
     private $username;
     private $hashPass;
     private $email;
-    // Konstruktor
     public function __construct()
     {
         $this->id = -1;
-        $this->username = "";
-        $this->email = "";
-        $this->hashPass = "";
+        $this->username = '';
+        $this->email = '';
+        $this->hashPass = '';
     }
-    // Getery i setery
-    public function setPassword($newPass)
+    public function setUsername($newUsername)
     {
-        $newHashedPass = password_hash($newPass, PASSWORD_BCRYPT);
-        $this->hashPass = $newHashedPass;
+        $this->username = $newUsername;
     }
-    public function getUsername()
+    public function setEmail($newEmail)
     {
-        return $this->username;
+        $this->email = $newEmail;
     }
-    public function setUsername($username)
+    public function setPassword($newPassword)
     {
-        $this->username = $username;
-    }
-    public function getHashPass()
-    {
-        return $this->hashPass;
-    }
-    public function getEmail()
-    {
-        return $this->email;
-    }
-    public function setEmail($email)
-    {
-        $this->email = $email;
+        $newHashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+        $this->hashPass = $newHashedPassword;
     }
     public function getId()
     {
         return $this->id;
     }
-    // Zapisanie nowego obiektu do bazy
+    public function getUsername()
+    {
+        return $this->username;
+    }
+    public function getEmail()
+    {
+        return $this->email;
+    }
+    public function getPassword()
+    {
+        return $this->hashPass;
+    }
     public function saveToDB(PDO $conn)
     {
         if ($this->id == -1) {
             $sql = 'INSERT INTO Users(username, email, hash_pass) VALUES(:username, :email, :pass)';
             $stmt = $conn->prepare($sql);
-            $result = $stmt->execute([
-                'username' => $this->username,
-                'email' => $this->email,
-                'pass' => $this->hashPass
-            ]);
+            $result = $stmt->execute(['username' => $this->username, 'email' => $this->email, 'pass' => $this->hashPass]);
             if ($result !== false) {
                 $this->id = $conn->lastInsertId();
                 return true;
             }
         } else {
             $stmt = $conn->prepare('UPDATE Users SET email=:email, username=:username, hash_pass=:hash_pass WHERE  id=:id ');
-            $result = $stmt->execute([
-                'email' => $this->email,
-                'username' => $this->username,
-                'hash_pass' => $this->hashPass,
-                'id' => $this->id
-            ]);
+            $result = $stmt->execute(['email' => $this->email, 'username' => $this->username, 'hash_pass' => $this->hashPass, 'id' => $this->id]);
             if ($result === true) {
                 return true;
             }
         }
         return false;
     }
-    // Wczytanie obiektu do bazy
     static public function loadUserById(PDO $conn, $id)
     {
         $stmt = $conn->prepare('SELECT * FROM Users WHERE id=:id');
@@ -90,7 +75,6 @@ class User
         }
         return null;
     }
-
     static public function loadUserByEmail(PDO $conn, $email)
     {
         $stmt = $conn->prepare('SELECT * FROM Users WHERE email=:email');
@@ -121,15 +105,12 @@ class User
         }
         return null;
     }
-
-
-    // Wczytywanie wielu obiektów
     static public function loadAllUsers(PDO $conn)
     {
         $ret = [];
         $sql = "SELECT * FROM Users";
         $result = $conn->query($sql);
-        if ($result !== false && $result->rowCount() != 0) {
+        if ($result !== false && $result->rowCount() > 0) {
             foreach ($result as $row) {
                 $loadedUser = new User();
                 $loadedUser->id = $row['id'];
@@ -141,21 +122,18 @@ class User
         }
         return $ret;
     }
-    // Usuwanie usera
     public function delete(PDO $conn)
     {
         if ($this->id != -1) {
             $stmt = $conn->prepare('DELETE FROM Users WHERE id=:id');
             $result = $stmt->execute(['id' => $this->id]);
             if ($result === true) {
-                $this->id = -1;
                 return true;
             }
             return false;
         }
         return true;
     }
-    // Logowanie
     static public function login(PDO $conn, $email, $passFromUser)
     {
         $user = User::loadUserByEmail($conn, $email);
@@ -165,16 +143,4 @@ class User
             return false;
         }
     }
-    // Funkcja pomocnicza: wyświetl dane
-    public function info()
-    {
-        echo $this->getId() . "\n";
-        echo $this->getUsername() . "\n";
-        echo $this->getEmail() . "\n";
-        echo $this->getHashPass() . "\n";
-    }
 }
-# Testy
-
-
-

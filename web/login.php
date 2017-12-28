@@ -1,24 +1,28 @@
 <?php
 require_once '../src/connection.php';
 require_once '../src/User.php';
+
 session_start();
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['username']) && isset($_POST['password'])) {
-        $email = $_POST['username'];
+if ('GET' === $_SERVER['REQUEST_METHOD']) {
+    if(!empty($_GET) and $_GET['action']=='logout'){
+        unset($_SESSION['user']);
+    }
+}
+if ('POST' === $_SERVER['REQUEST_METHOD']) {
+    if (isset($_POST['email']) && isset($_POST['password'])) {
+        $email = $_POST['email'];
         $password = $_POST['password'];
         $user = User::loadUserByEmail($conn, $email);
         if (!$email) {
-            echo '<p>Zły login lub hasło</p>';
+            echo '<p>Zły e-mail lub hasło</p>';
             exit;
         }
         if (password_verify($password, $user->getPassword())) {
-            $_SESSION['username'] = $user->getId();
+            $_SESSION['user'] = $user->getId();
+            header("Location: ../index.php");
         } else {
-            echo '<p>Zły login lub hasło</p>';
+            echo '<p>Zły e-mail lub hasło</p>';
             exit;
-        }
-        if ($user == true) {
-            echo '<p>Użytkownik zalogowany</p>';
         }
     }
 } else {
@@ -26,18 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!DOCTYPE html>
 
-
-
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>Logowanie - Twitter</title>
+        <title>Logowanie</title>
     </head>
     <body>
+    Zaloguj się:
     <form method="POST" action="">
         <p>
             <label>
-                E-mail: <input name="username" type="email">
+                E-mail: <input name="email" type="email">
             </label>
         </p>
         <p>
@@ -46,12 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
         </p>
         <p>
-            <input type="submit" value="Zaloguj się">
-        </p>
-        <p>
-            <a href="register.php">Zarejestruj się</a>
+            <input type="submit">
         </p>
     </form>
+    <a href="register.php">Zarejestruj się</a>
     </body>
     </html>
 

@@ -46,7 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
         </p>
         <p>
-            <input type="submit">
+            <input type="submit" value="Zaloguj się">
+        </p>
+        <p>
+            <a href="register.php">Zarejestruj się</a>
         </p>
     </form>
     </body>

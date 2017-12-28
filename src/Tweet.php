@@ -1,7 +1,5 @@
 <?php
 
-require_once('../src/connection.php');
-
 class Tweet
 {
     private $id; // int
@@ -19,7 +17,7 @@ class Tweet
         $this->creationDate = "";
     }
 
-    // Getery o setery
+    // Getery i setery
 
     public function getId()
     {
@@ -43,7 +41,12 @@ class Tweet
 
     public function setText($text)
     {
-        $this->text = $text;
+        if (mb_strlen($text) <= 160) {
+            $this->text = $text;
+        } else {
+            echo "Twój wpis jest za długi! (max 160 znaków)";
+        }
+
     }
 
     public function getCreationDate()
@@ -73,6 +76,56 @@ class Tweet
             }
         }
         return false;
+    }
+
+    // Operacje na tweetach
+
+    static public function loadTweetById(PDO $conn, $id)
+    {
+        $stmt = $conn->prepare('SELECT * FROM Tweets WHERE id=:tweet_id');
+        $result = $stmt->execute(['id' => $id]);
+        if ($result === true && $stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $loadedTweet = new Tweet();
+            $loadedTweet->id = $row['tweet_id'];
+            $loadedTweet->userId = $row['user_id'];
+            $loadedTweet->text = $row['text'];
+            $loadedTweet->creationDate = $row['creationDate'];
+            return $loadedTweet;
+        }
+        return null;
+    }
+    static public function loadAllTweetsByUserId(PDO $conn, $userId)
+    {
+        $stmt = $conn->prepare('SELECT * FROM Tweets WHERE user_id=:user_id');
+        $result = $stmt->execute(['user_id' => $userId]);
+        if ($result === true && $stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $loadedTweet = new Tweet();
+            $loadedTweet->id = $row['tweet_id'];
+            $loadedTweet->userId = $row['user_id'];
+            $loadedTweet->text = $row['text'];
+            $loadedTweet->creationDate = $row['creationDate'];
+            return $loadedTweet;
+        }
+        return null;
+    }
+    static public function loadAllTweets(PDO $conn)
+    {
+        $ret = [];
+        $sql = "SELECT * FROM Tweets ORDER BY creationDate DESC";
+        $result = $conn->query($sql);
+        if ($result !== false && $result->rowCount() > 0) {
+            foreach ($result as $row) {
+                $loadedTweet = new Tweet();
+                $loadedTweet->id = $row['tweet_id'];
+                $loadedTweet->userId = $row['user_id'];
+                $loadedTweet->text = $row['text'];
+                $loadedTweet->creationDate = $row['creationDate'];
+                $ret[] = $loadedTweet;
+            }
+        }
+        return $ret;
     }
 
 }

@@ -1,0 +1,29 @@
+.container {
+    background: deepskyblue;
+}
+
+.content {
+    width: 60%;
+    margin: auto;
+    background: white;
+
+}
+
+.tweet {
+    border-bottom: dashed lightgray;
+    padding: 10px 15px;
+}
+
+.tweet-form {
+    background: lightblue;
+    padding: 10px 15px;
+}
+
+.container a:hover {
+    background-color: yellow;
+}
+
+#msg {
+    float: right;
+    position: absolute;
+}

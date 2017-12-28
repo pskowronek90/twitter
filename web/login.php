@@ -4,15 +4,15 @@ require_once '../src/User.php';
 session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['username']) && isset($_POST['password'])) {
-        $username = $_POST['username'];
+        $email = $_POST['username'];
         $password = $_POST['password'];
-        $user = User::loadUserByUsername($conn, $username);
-        if (!$user) {
+        $user = User::loadUserByEmail($conn, $email);
+        if (!$email) {
             echo '<p>Zły login lub hasło</p>';
             exit;
         }
         if (password_verify($password, $user->getPassword())) {
-            $_SESSION['user'] = $user->getId();
+            $_SESSION['username'] = $user->getId();
         } else {
             echo '<p>Zły login lub hasło</p>';
             exit;
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" action="">
         <p>
             <label>
-                Login: <input name="username" type="text">
+                E-mail: <input name="username" type="email">
             </label>
         </p>
         <p>

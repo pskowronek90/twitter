@@ -1,17 +1,23 @@
 <?php
 
+session_start();
+
 require_once 'src/connection.php';
 require_once 'src/User.php';
 require_once 'src/Tweet.php';
 require_once 'src/Comment.php';
 
-session_start();
-
 if (!isset($_SESSION['user'])) {
     header("Location: web/login.php");
 }
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user'];
+    // zgarnięcie id tweeta
+    $postId = $_SESSION['Tweet'];
+    // komentarz
+    $userId = $_SESSION['user'];
+    $creation_date = date('Y-m-d H:i:s', time());
     $text = $_POST['text'];
     $creationDate = date('Y-m-d H:i:s', time());
     $tweet = new Tweet();
@@ -20,6 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tweet->setCreationDate($creationDate);
     $tweet->saveToDB($conn);
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $comment = $_POST['comment'];
+}
+
+if ($comment) {
+    $comm = new Comment();
+    $comm->setUserId($userId);
+    $comm->setPostId($postId);
+    $comm->setCreationDate($creation_date);
+    $comm->setComment($comment);
+    $comm->saveComm($conn);
+}
+
+
 $allTweets = Tweet::loadAllTweets($conn);
 ?>
 
@@ -55,7 +76,10 @@ $allTweets = Tweet::loadAllTweets($conn);
             echo $user->getUsername() . " - " . $t->getCreationDate() . "<br>";
             echo $t->getText() . "<br>";
             // miejsce na kometarz
-            include 'web/comments.php';
+            echo "<form method='post' action=''>
+                <textarea cols='40' rows='4' name='comment' placeholder='Your comment'></textarea><br>
+                <input type='submit' value='Comment'>
+            </form>";
             echo "</div>";
         }
         ?>
@@ -63,3 +87,6 @@ $allTweets = Tweet::loadAllTweets($conn);
 </div>
 </body>
 </html>
+
+<?php var_dump($t); ?>
+<?php var_dump($_SESSION); ?>
